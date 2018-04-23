@@ -12,7 +12,11 @@ struct request
 
 void search();
 void make_map();
-void print_map();
+void print_map_info(int map[500][500]);
+void print_map_info(double map[500][500]);
 void make_request_vec();
+double calculate_max_percentage();
+void calculate_each_route_usage();
+void calculate_each_route_percentage();
 
 #endif

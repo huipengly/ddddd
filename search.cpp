@@ -2,12 +2,15 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 
 extern int grid_topo_data[956][3];
 extern int request_data[4001][500];
 int map[500][500] = {0};
+int map_usage[500][500] ={0};
+double map_percentage[500][500] ={0};
 
 request request_vec[1000];
 
@@ -18,6 +21,13 @@ void search()
 //    print_map();
 
     make_request_vec();
+
+    for(int i = 0; i < 50*2000; ++i) {
+        calculate_max_percentage();
+        memset(map_usage,0, 500*500*sizeof(int) );
+    }
+    cout << calculate_max_percentage() << endl;
+//    print_map_info(map_percentage);
 }
 
 void make_map()
@@ -32,7 +42,19 @@ void make_map()
     }
 }
 
-void print_map()
+void print_map_info(int map[500][500])
+{
+    for (int  i= 0; i < 500; ++i)
+    {
+        for (int j = 0; j < 500; ++j)
+        {
+            cout << map[i][j] << '\t';
+        }
+        cout << endl;
+    }
+}
+
+void print_map_info(double map[500][500])
 {
     for (int  i= 0; i < 500; ++i)
     {
@@ -67,5 +89,40 @@ void make_request_vec()
             request_vec[request_number].route.push_back(temp_route);            //添加一条备选的需求
         }
         line_counter = line_counter + 4;                                        //每4行为一个备选
+    }
+}
+
+double calculate_max_percentage()
+{
+    calculate_each_route_percentage();
+    return *max_element(&map_percentage[0][0], &map_percentage[499][499]);
+}
+
+void calculate_each_route_usage()
+{
+    for (request req : request_vec)
+    {
+        for (int i = 0; i < req.route[0].size() - 1; ++i)
+        {
+            map_usage[req.route[0][i]][req.route[0][i+1]] += req.request_band_width;
+        }
+    }
+}
+
+void calculate_each_route_percentage()
+{
+    calculate_each_route_usage();
+    for (int i = 0; i < 500; ++i)
+    {
+        for (int j = 0; j < 500; ++j)
+        {
+            if(map[i][j] == 0)
+            {
+                map_percentage[i][j] = 0;
+            }
+            else {
+                map_percentage[i][j] = 1.0 * map_usage[i][j] / map[i][j];
+            }
+        }
     }
 }
