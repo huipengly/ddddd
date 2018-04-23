@@ -18,5 +18,7 @@ void make_request_vec();
 double calculate_max_percentage();
 void calculate_each_route_usage();
 void calculate_each_route_percentage();
+int rand_for_alternative_route();
+void rand_choose();
 
 #endif
