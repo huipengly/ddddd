@@ -46,3 +46,4 @@ CTestTestfile.cmake
 # Clion files
 **/cmake-build-*
 **/.idea
+**/bin
