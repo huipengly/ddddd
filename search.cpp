@@ -15,6 +15,7 @@ double map_percentage[500][500] ={0};
 int request_choose[1000] = {0};
 
 request request_vec[1000];
+Max_Percentage_Route max_percentage_route;
 
 //你要完成的功能总入口
 void search()
@@ -29,13 +30,13 @@ void search()
 //        calculate_max_percentage();
 //        memset(map_usage,0, 500*500*sizeof(int) );
 //    }
-    double percentage = calculate_max_percentage();
-    while( percentage > 0.35)
+    double percentage = calculate_max_percentage(max_percentage_route);
+    while( percentage > 0.5)
     {
         rand_choose();
         cout << percentage << endl;
         memset(map_usage,0, 500*500*sizeof(int) );
-        percentage = calculate_max_percentage();
+        percentage = calculate_max_percentage(max_percentage_route);
     }
     for (int i = 0; i < 1000; ++i) {
         cout << request_choose[i] << endl;
@@ -106,19 +107,40 @@ void make_request_vec()
     }
 }
 
-double calculate_max_percentage()
+double calculate_max_percentage(Max_Percentage_Route &max_percentage_route)
 {
     calculate_each_route_percentage();
-    return *max_element(&map_percentage[0][0], &map_percentage[499][499]);
+    double *max = max_element(&map_percentage[0][0], &map_percentage[499][499]);
+    int distance = (max - &map_percentage[0][0]);        //最大值距离0，0的距离。指针地址相减不需要再除类型大小例如sizeof(double)。
+    max_percentage_route.percentage = *max;
+    max_percentage_route.start_node = distance / 500;
+    max_percentage_route.end_node = distance - max_percentage_route.start_node * 500;
+    int col, row;
+    for(int i = 0; i < 500; ++i)
+    {
+        for(int j = 0; j < 500; ++j)
+        {
+            if (fabs(map_percentage[i][j] - *max) < 1e-5)
+            {
+                col = i;
+                row = j;
+            }
+        }
+    }
+    return *max;
 }
 
 void calculate_each_route_usage()
 {
-    for (request req : request_vec)
+    for (int i = 0; i < 1000; ++i)                                      //每条需求的流量都要加入图
     {
-        for (int i = 0; i < req.route[i].size() - 1; ++i)
+        request req = request_vec[i];                                    //当前需求
+        int request_choose_route = request_choose[i];                   //当前需求的备选线路
+        for (int node = 0; node < req.route[request_choose_route].size() - 1; ++node)   //从需求的备选线路中循环节点，加到图的流量里，从点一个开始，到倒数第二个。
         {
-            map_usage[req.route[request_choose[i]][i]][req.route[request_choose[i]][i+1]] += req.request_band_width;
+            int start_node = req.route[request_choose_route][node];     //当前节点
+            int end_node = req.route[request_choose_route][node + 1];   //下一个节点
+            map_usage[start_node][end_node] += req.request_band_width;  //两个节点直接的流量加入到总图里
         }
     }
 }
