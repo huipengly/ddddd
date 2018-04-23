@@ -30,7 +30,7 @@ void search()
 //        memset(map_usage,0, 500*500*sizeof(int) );
 //    }
     double percentage = calculate_max_percentage();
-    while( percentage > 0.31)
+    while( percentage > 0.35)
     {
         rand_choose();
         cout << percentage << endl;
@@ -132,7 +132,10 @@ void calculate_each_route_percentage()
         {
             if(map[i][j] == 0)
             {
-                map_percentage[i][j] = 0;
+                if(map_usage[i][j] != 0)
+                {
+                    map_percentage[i][j] = 2;
+                }
             }
             else {
                 map_percentage[i][j] = 1.0 * map_usage[i][j] / map[i][j];
