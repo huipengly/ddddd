@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
 
     auto end = system_clock::now();
     auto duration = duration_cast<microseconds>(end - start);
-    cout << "use"
-         << double(duration.count()) * microseconds::period::num / microseconds::period::den * 1000 << "ms" << endl;
+    cout << "use : "
+         << double(duration.count()) * microseconds::period::num / microseconds::period::den << "sec" << endl;
     return 0;
 }
 
@@ -41,7 +41,7 @@ void search()
     make_map();
     make_request_vec();
 
-    PSO pso(1000,50);
+    PSO pso(2000,50);
     pso.run();
 
 //    rand_choose();

@@ -31,7 +31,9 @@ public:
     void move();            //粒子移动
     double UpdateValue();   //更新粒子值
 	void UpdateSpeed(Particle best_particle);
+    Particle& operator= (const Particle& obj);//重载等号，数组复制值，而不是地址
 	double get_best_result();
+	void set_c1_c2(double c1, double c2);
 //    double *getx();
 };
 
