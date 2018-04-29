@@ -4,8 +4,12 @@
 #include <algorithm>
 #include <cstring>
 #include <ctime>
+#include <chrono>
+#include <cmath>
+#include "pso.h"
 
 using namespace std;
+using namespace chrono;
 
 extern int grid_topo_data[956][3];
 extern int request_data[4001][500];
@@ -14,47 +18,55 @@ int map_usage[500][500] ={0};
 double map_percentage[500][500] ={0};
 //int request_choose[1000] = {0};
 
-request request_vec[1000];
-Max_Percentage_Route max_percentage_route;
+request request_vec[1000];      //需求
+Route_info max_percentage_route;
 
-//40.79
-int request_choose[1000] = {0,0,1,0,2,1,1,0,1,0,0,2,0,1,1,2,0,0,1,0,1,0,2,1,0,2,2,2,2,0,2,2,0,0,2,1,0,2,2,0,2,0,1,0,1,2,0,1,1,1,1,1,2,1,0,0,1,2,1,2,0,2,0,1,0,0,2,2,2,2,0,0,1,1,2,2,2,1,0,1,2,0,2,1,0,0,0,2,2,0,1,1,1,1,1,1,1,1,0,1,1,1,0,0,0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,0,0,0,1,2,1,1,0,0,1,1,0,1,1,1,0,1,0,1,1,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,1,1,1,0,1,0,1,0,1,1,2,0,0,1,0,1,0,1,2,2,2,0,0,1,1,1,1,2,1,0,0,0,1,1,1,0,2,1,2,0,2,0,1,1,0,1,1,2,0,0,2,0,1,0,2,1,1,1,1,1,2,0,1,2,1,1,1,2,2,1,1,1,0,2,1,1,1,2,0,1,1,1,0,1,1,1,0,0,0,1,1,1,0,0,1,2,0,0,0,0,1,0,1,1,2,0,2,0,0,1,1,0,0,1,1,2,0,0,0,0,2,2,2,2,1,1,2,2,1,2,0,1,0,1,0,0,0,2,0,1,2,2,0,0,0,2,0,2,2,1,0,2,2,0,0,0,2,0,1,2,1,2,2,1,2,0,2,1,1,1,1,1,1,2,0,2,1,2,1,1,0,1,1,1,0,1,1,2,2,1,1,1,2,1,1,2,1,0,0,1,0,2,1,1,1,1,2,2,1,2,1,2,0,1,1,2,0,1,1,2,1,1,0,1,1,1,1,1,0,1,2,1,1,2,1,1,1,0,0,2,0,1,1,2,0,0,1,1,1,0,2,2,1,2,0,0,0,0,0,2,0,1,1,0,2,0,0,0,1,2,1,1,0,0,1,2,0,1,1,0,1,0,0,2,2,2,0,1,1,2,2,2,1,1,1,0,2,0,1,1,2,0,0,1,0,1,0,1,2,1,0,1,1,1,1,1,0,1,2,1,0,0,2,1,2,0,2,1,1,2,0,1,1,1,1,1,1,1,1,1,2,2,0,1,2,1,0,1,2,2,0,2,2,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,2,0,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,0,0,0,2,0,1,2,0,0,0,1,2,1,2,2,2,1,2,2,2,2,0,0,1,0,0,2,2,1,1,1,1,0,0,2,0,1,1,1,0,1,2,1,2,1,1,1,2,0,2,2,1,1,1,0,0,0,0,0,0,0,2,2,1,1,2,0,0,2,2,1,2,0,0,0,1,1,0,0,0,1,0,0,2,0,2,0,1,0,1,1,2,0,2,0,1,2,1,2,0,2,2,2,2,2,1,0,2,2,2,2,2,1,0,0,2,2,0,2,2,2,0,1,1,1,1,2,1,0,2,2,0,0,2,1,0,1,0,2,0,1,2,2,1,0,0,1,2,2,0,0,1,0,0,0,1,0,2,1,1,1,0,0,0,0,1,1,0,1,2,0,1,0,0,0,0,2,1,0,2,2,2,0,2,1,1,1,1,2,1,0,0,2,0,0,0,1,0,1,0,0,1,2,2,0,0,0,0,0,0,1,1,0,0,0,0,2,2,2,1,0,1,0,0,2,2,0,0,0,0,1,0,1,1,1,2,0,1,2,2,1,0,1,1,0,0,0,0,1,1,2,0,0,0,0,1,0,1,0,0,0,0,1,1,2,2,2,2,0,2,0,0,1,0,1,2,0,0,1,0,2,0,2,2,2,0,1,1,1,2,0,0,0,0,1,2,2,1,0,2,1,1,1,1,2,2,1,0,2,0,0,1,1,1,2,1,1,1,1,2,0,0,2,0,1,1,0,0,0,1,1,2,0,1,1,1,0,0,0,1,2,2,0,2,1,2,1,2,1,0,2,1,2,2,1,0,0,0,0,1,2,2,2,2,0,0,2,1,1,1,1,2,2,2,2,1,1,0,1,2,2,2,0,0,2,2,2,1,0,2,1,0,2,0,0,2,0,1,1,2,2,0,0,0,0,2,1,0,0,0,1,2,0,2,2,0,0,1,2,0,2,2,0,0,2,2,1,2,2,2,0,0,0,0,1,0,2,2,0,2,2,2,0,0,0,2,2,2,};
+int main(int argc, char *argv[])
+{
+    std::srand(std::time(nullptr)); // 以当前时间为随机生成器的种子
+    auto start = system_clock::now();
+
+    search();
+
+    auto end = system_clock::now();
+    auto duration = duration_cast<microseconds>(end - start);
+    cout << "use"
+         << double(duration.count()) * microseconds::period::num / microseconds::period::den * 1000 << "ms" << endl;
+    return 0;
+}
 
 //你要完成的功能总入口
 void search()
 {
-    std::srand(std::time(nullptr)); // 以当前时间为随机生成器的种子
     make_map();
-//    print_map();
-
     make_request_vec();
 
-//    for(int i = 0; i < 50*2000; ++i) {
-//        calculate_max_percentage();
-//        memset(map_usage,0, 500*500*sizeof(int) );
-//    }
-    double percentage = calculate_max_percentage(max_percentage_route);
-//    while( percentage > 0.5)
-//    {
-//        rand_choose();
-//        cout << percentage << endl;
-//        memset(map_usage,0, 500*500*sizeof(int) );
-//        percentage = calculate_max_percentage(max_percentage_route);
-//    }
-//    for (int i = 0; i < 1000; ++i) {
-//        cout << request_choose[i] << endl;
-//    }
-    cout << percentage << "% "  << max_percentage_route.start_node << ' ' << max_percentage_route.end_node << endl;
+    PSO pso(1000,50);
+    pso.run();
 
-    for (int i = 0; i < 1000; ++i) {
-        cout << i << " " << request_vec[i].request_band_width << endl;
-        for (int route : request_vec[i].route[request_choose[i]]) {
-            cout << route << ' ';
-        }
-        cout << endl;
-    }
-//    cout << percentage << endl;
-//    print_map_info(map_percentage);
+//    rand_choose();
+//    double percentage = calculate_max_percentage(request_choose, max_percentage_route);
+////    while( percentage > 0.5)
+////    {
+////        rand_choose();
+////        cout << percentage << endl;
+////        memset(map_usage,0, 500*500*sizeof(int) );
+////        percentage = calculate_max_percentage(max_percentage_route);
+////    }
+////    for (int i = 0; i < 1000; ++i) {
+////        cout << request_choose[i] << endl;
+////    }
+//    cout << percentage * 100 << "% "  << max_percentage_route.start_node << ' ' << max_percentage_route.end_node << endl;
+//
+//    for (int i = 0; i < 1000; ++i) {
+//        cout << i << " " << request_vec[i].request_band_width << endl;
+//        for (int route : request_vec[i].route[request_choose[i]]) {
+//            cout << route << ' ';
+//        }
+//        cout << endl;
+//    }
+////    cout << percentage << endl;
+////    print_map_info(map_percentage);
 }
 
 void make_map()
@@ -119,30 +131,31 @@ void make_request_vec()
     }
 }
 
-double calculate_max_percentage(Max_Percentage_Route &max_percentage_route)
+double calculate_max_percentage(int request_choose[1000], Route_info &max_percentage_route)
 {
-    calculate_each_route_percentage();
+    memset(map_usage,0, 500*500*sizeof(int) );
+    calculate_each_route_percentage(request_choose);
     double *max = max_element(&map_percentage[0][0], &map_percentage[499][499]);
     int distance = (max - &map_percentage[0][0]);        //最大值距离0，0的距离。指针地址相减不需要再除类型大小例如sizeof(double)。
     max_percentage_route.percentage = *max;
     max_percentage_route.start_node = distance / 500;
     max_percentage_route.end_node = distance - max_percentage_route.start_node * 500;
-    int col, row;
-    for(int i = 0; i < 500; ++i)
-    {
-        for(int j = 0; j < 500; ++j)
-        {
-            if (fabs(map_percentage[i][j] - *max) < 1e-5)
-            {
-                col = i;
-                row = j;
-            }
-        }
-    }
+//    int col, row;
+//    for(int i = 0; i < 500; ++i)
+//    {
+//        for(int j = 0; j < 500; ++j)
+//        {
+//            if (fabs(map_percentage[i][j] - *max) < 1e-5)
+//            {
+//                col = i;
+//                row = j;
+//            }
+//        }
+//    }
     return *max;
 }
 
-void calculate_each_route_usage()
+void calculate_each_route_usage(int request_choose[1000])
 {
     for (int i = 0; i < 1000; ++i)                                      //每条需求的流量都要加入图
     {
@@ -157,9 +170,9 @@ void calculate_each_route_usage()
     }
 }
 
-void calculate_each_route_percentage()
+void calculate_each_route_percentage(int request_choose[1000])
 {
-    calculate_each_route_usage();
+    calculate_each_route_usage(request_choose);
     for (int i = 0; i < 500; ++i)
     {
         for (int j = 0; j < 500; ++j)
@@ -183,10 +196,10 @@ int rand_for_alternative_route()
     return std::rand() / ((RAND_MAX + 1u) / 3);
 }
 
-void rand_choose()
-{
-    for (int& req : request_choose)
-    {
-        req = rand_for_alternative_route();
-    }
-}
+//void rand_choose()
+//{
+//    for (int& req : request_choose)
+//    {
+//        req = rand_for_alternative_route();
+//    }
+//}
